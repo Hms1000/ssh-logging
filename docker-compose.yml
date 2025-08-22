@@ -1,0 +1,84 @@
+version: 3.9
+
+# create a network for the services to communicate 
+networks:
+  ssh-network:
+    driver: bridge
+
+services:
+  ssh-logging:
+    build: ./ssh-logging
+    image: mazivazvose/ssh-logging:1.0
+    networks:
+      - ssh-network:
+    volumes:
+      - ssh_data:/app/data
+    restart: unless-stopped
+    secrets:
+      - postgres_user
+      - postgres_password
+      - postgres_db
+    depends-on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  web:
+    image: nginx:alpine
+    networks:
+      - ssh-network
+    ports:
+      - "80:80"
+    volumes:
+      -
+      - nginx_data:/app/data
+    restart: always
+    depends-on:
+      ssh-logging:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  db:
+    image: postgres:12
+    networks:
+      - ssh-network
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgres/data
+    restart: always
+    secrets:
+      - postgres_user
+      - postgres_password
+      - postgres_db
+    environment:
+      POSTGRES_USER: file:/run/postgres_user
+      POSTGRES_PASSWORD: file:/run/postgres_password
+      POSTGRES_DB: file:/run/postgres_db
+    healtcheck:
+      test: ["CMD-SHEL", "pg_isready -U $POSTGRES_USER"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  ssh_data:
+  nginx_data:
+  postgress_data:
+
+secrets:
+  file: ./postgres_user.txt:
+  file: ./postgres_password.txt:
+  file: ./postgres_db.txt:
+
