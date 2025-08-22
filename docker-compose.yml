@@ -1,18 +1,18 @@
 version: 3.9
 
-# create a network for the services to communicate 
+# i defined a custom network for all services to communicate securely
 networks:
   ssh-network:
     driver: bridge
 
 services:
-  ssh-logging:
-    build: ./ssh-logging
-    image: mazivazvose/ssh-logging:1.0
+  ssh-logging: # python app for SSH logging
+    build: ./ssh-logging # build from local but once done building i will remove this line
+    image: mazivazvose/ssh-logging:latest
     networks:
-      - ssh-network:
+      - ssh-network
     volumes:
-      - ssh_data:/app/data
+      - ssh_data:/app/data # keeping SSH logs
     restart: unless-stopped
     secrets:
       - postgres_user
@@ -20,7 +20,7 @@ services:
       - postgres_db
     depends-on:
       db:
-        condition: service_healthy
+        condition: service_healthy # waiting until database is ready
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
@@ -40,7 +40,7 @@ services:
     restart: always
     depends-on:
       ssh-logging:
-        condition: service_healthy
+        condition: service_healthy # waiting until ssh-logging is ready
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 30s
@@ -55,17 +55,17 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgres/data
+      - postgres_data:/var/lib/postgres/data # named volume for persistent data storage
     restart: always
     secrets:
       - postgres_user
       - postgres_password
       - postgres_db
     environment:
-      POSTGRES_USER: file:/run/postgres_user
-      POSTGRES_PASSWORD: file:/run/postgres_password
-      POSTGRES_DB: file:/run/postgres_db
-    healtcheck:
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
+    healthcheck:
       test: ["CMD-SHEL", "pg_isready -U $POSTGRES_USER"]
       interval: 30s
       timeout: 10s
@@ -75,10 +75,13 @@ services:
 volumes:
   ssh_data:
   nginx_data:
-  postgress_data:
+  postgres_data:
 
 secrets:
-  file: ./postgres_user.txt:
-  file: ./postgres_password.txt:
-  file: ./postgres_db.txt:
+  postgres_user:
+    file: ./postgres_user.txt
+  postgres_password:
+    file: ./postgres_password.txt
+  postgres_db:
+    file: ./postgres_db.txt
 
