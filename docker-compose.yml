@@ -13,6 +13,8 @@ services:
       - ssh-network
     volumes:
       - ssh_data:/app/data # keeping SSH logs
+    environment:
+      DATABASE_URL:
     restart: unless-stopped
     secrets:
       - postgres_user
@@ -55,7 +57,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgres/data # named volume for persistent data storage
+      - postgres_data:/var/lib/postgresql/data # named volume for persistent data storage
     restart: always
     secrets:
       - postgres_user
@@ -66,7 +68,7 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
       POSTGRES_DB_FILE: /run/secrets/postgres_db
     healthcheck:
-      test: ["CMD-SHEL", "pg_isready -U $POSTGRES_USER"]
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
       interval: 30s
       timeout: 10s
       retries: 3
