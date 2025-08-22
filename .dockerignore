@@ -1,0 +1,37 @@
+# Ignore git history
+.git
+.gitignore
+
+# Python cache / compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs & environment files
+*.log
+.env
+.env.*
+
+# Local IDE/editor folders
+.vscode/
+.idea/
+
+# Ignore virtual environments
+venv/
+.env/
+
+# Ignore tests (for now) 
+tests/
+
+# Ignore docs and development files
+docs/
+README.md
+
+# Ignore Docker-related files because they will make the image big
+Dockerfile
+docker-compose.yml
+
+# Ignore CI/CD configs
+.github/
+
