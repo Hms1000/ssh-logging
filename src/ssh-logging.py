@@ -2,7 +2,6 @@ import paramiko
 import argparse
 import logging
 from pathlib import Path
-import os
 
 log_file = Path(__file__).with_name('secure_ssh.log')
 
