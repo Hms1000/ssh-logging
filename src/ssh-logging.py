@@ -13,12 +13,12 @@ logging.basicConfig(
         format='%(asctime)s-%(levelname)s-%(message)s'
         )
 
-def linux_server_secure_logging(hostname, username, command):
+def linux_server_secure_logging(hostname, username, command, key):
     ssh_client = paramiko.SSHClient() # ssh client
     try:
         ssh_client.add_missing_host_key_policy(paramiko.AutoRejectPolicy()) # adding host key policy, AutoReject=Secure
         ssh_client.load_system_host_keys() # checking known host list
-        private_key = os.path.expanduser("~/.ssh/id_rsa")  # getting the private key
+        private_key = key  # getting the private key
 
         # connecting to the server via ssh
         ssh_client.connect(
@@ -31,7 +31,7 @@ def linux_server_secure_logging(hostname, username, command):
         logging.info('Connected securely using existing credentials')
 
         # executing commands after logging in the server
-        stdin,stdout, stderr = ssh_client.exec_command('command')
+        stdin,stdout, stderr = ssh_client.exec_command(command)
         print(f'Executing command {command}')
         logging.info('Executing command {command}')
 
@@ -56,6 +56,7 @@ def main():
     parser.add_argument('--hostname', type=str, required=True, help='target server ip address')
     parser.add_argument('--username', type=str, required=True, help='target server username')
     parser.add_argument('--command', default='ls -la', help='command you want to run')
+    parser.add_argument('--key', type=str, default=os.path.expanduser("~/.ssh/id_rsa"), help='path to private key')
     args = parser.parse_args()
 
     linux_server_secure_logging(args.hostname, args.username, args.command)
