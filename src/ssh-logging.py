@@ -3,6 +3,7 @@ import argparse
 import logging
 from pathlib import Path
 import os
+import sys
 
 log_file = Path(__file__).with_name('secure_ssh.log')
 
@@ -16,15 +17,14 @@ logging.basicConfig(
 def linux_server_secure_logging(hostname, username, command, key):
     ssh_client = paramiko.SSHClient() # ssh client
     try:
-        ssh_client.add_missing_host_key_policy(paramiko.AutoRejectPolicy()) # adding host key policy, AutoReject=Secure
+        ssh_client.set_missing_host_key_policy(paramiko.AutoRejectPolicy()) # adding host key policy, AutoReject=Secure
         ssh_client.load_system_host_keys() # checking known host list
-        private_key = key  # getting the private key
 
         # connecting to the server via ssh
         ssh_client.connect(
                 hostname=hostname,
                 username=username,
-                key_filename=private_key
+                key_filename=key
                 )
 
         print('Connected securely using existing credentials')
@@ -33,7 +33,7 @@ def linux_server_secure_logging(hostname, username, command, key):
         # executing commands after logging in the server
         stdin,stdout, stderr = ssh_client.exec_command(command)
         print(f'Executing command {command}')
-        logging.info('Executing command {command}')
+        logging.info(f'Executing command {command}')
 
         output = stdout.read().decode()
         error =  stderr.read().decode()
@@ -59,7 +59,7 @@ def main():
     parser.add_argument('--key', type=str, default=os.path.expanduser("~/.ssh/id_rsa"), help='path to private key')
     args = parser.parse_args()
 
-    linux_server_secure_logging(args.hostname, args.username, args.command)
+    linux_server_secure_logging(args.hostname, args.username, args.command, args.key)
 
 if __name__ == '__main__':
     main()
