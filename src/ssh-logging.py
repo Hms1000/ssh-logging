@@ -3,7 +3,6 @@ import argparse
 import logging
 from pathlib import Path
 import os
-import sys
 
 log_file = Path(__file__).with_name('secure_ssh.log')
 
@@ -40,9 +39,10 @@ def linux_server_secure_logging(hostname, username, command, key):
         
         print(f'stdout: {output}')
         logging.info(f'stdout: {output}')
-
-        print(f'stderr: {error}')
-        logging.error(f'stderr: {error}')
+        
+        if error.strip(): # to avoid logging blank spaces , we are only going to log errors if there any errors.
+            print(f'stderr: {error}')
+            logging.error(f'stderr: {error}')
 
     except Exception as e:
        print(f'Error: {e}')
