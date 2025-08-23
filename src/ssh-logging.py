@@ -13,7 +13,7 @@ logging.basicConfig(
         format='%(asctime)s-%(levelname)s-%(message)s'
         )
 
-def linux_server_secure_logging(hostname, username):
+def linux_server_secure_logging(hostname, username, command):
     ssh_client = paramiko.SSHClient() # ssh client
     try:
         ssh_client.add_missing_host_key_policy(paramiko.AutoRejectPolicy()) # adding host key policy, AutoReject=Secure
@@ -31,9 +31,9 @@ def linux_server_secure_logging(hostname, username):
         logging.info('Connected securely using existing credentials')
 
         # executing commands after logging in the server
-        stdin,stdout, stderr = ssh_client.exec_command('ls')
-        print('Executing command "ls"')
-        logging.info('Executing command "ls"')
+        stdin,stdout, stderr = ssh_client.exec_command('command')
+        print(f'Executing command {command}')
+        logging.info('Executing command {command}')
 
         output = stdout.read().decode()
         error =  stderr.read().decode()
@@ -55,9 +55,10 @@ def main():
     parser = argparse.ArgumentParser(description='logging securely into a server using ssh')
     parser.add_argument('--hostname', type=str, required=True, help='target server ip address')
     parser.add_argument('--username', type=str, required=True, help='target server username')
+    parser.add_argument('--command', default='ls -la', help='command you want to run')
     args = parser.parse_args()
 
-    linux_server_secure_logging(args.hostname, args.username)
+    linux_server_secure_logging(args.hostname, args.username, args.command)
 
 if __name__ == '__main__':
     main()
