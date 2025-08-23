@@ -23,7 +23,7 @@ jobs:
 
        # i build the image
       - name: Build the image
-        run: docker build -t  mazivazvose/ssh-logging:latest -t mazivazvose/ssh-logging:${{ github.sha }} ./ssh-logging
+        run: docker build -t  mazivazvose/ssh-logging:latest -t mazivazvose/ssh-logging:${{ github.sha }} .
 
        # i want to confirm if the image was built
       - name: Show images
