@@ -26,6 +26,7 @@ This allows the tool to be readily available and makes it easy to use.
 ```bash
 docker build -t ssh-logging .
 docker run --rm ssh-logging --hostname <hostname> --username <username> --key <key> --command <command>
+   '''
 
 ## Logging
 The tool produces log files that are very important for tracking progress, debugging and troubleshooting
