@@ -7,14 +7,11 @@ networks:
 
 services:
   ssh-logging: # python app for SSH logging
-    build: ./ssh-logging # build from local but once done building i will remove this line
     image: mazivazvose/ssh-logging:latest
     networks:
       - ssh-network
     volumes:
       - ssh_data:/app/data # keeping SSH logs
-    environment:
-      DATABASE_URL:
     restart: unless-stopped
     secrets:
       - postgres_user
@@ -30,6 +27,8 @@ services:
       retries: 3
       start_period: 5s
 
+  # Currently pointing to 'ssh-logging', which is a CLI tool.
+  # This proxy will only work once the app exposes an HTTP endpoint, I plan to use FastAPI.
   web:
     image: nginx:alpine
     networks:
