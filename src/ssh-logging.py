@@ -1,6 +1,7 @@
 import paramiko
 import argparse
 import logging
+import os
 from pathlib import Path
 
 log_file = Path(__file__).with_name('secure_ssh.log')
@@ -15,7 +16,7 @@ logging.basicConfig(
 def linux_server_secure_logging(hostname, username, command, key):
     ssh_client = paramiko.SSHClient() # ssh client
     try:
-        ssh_client.set_missing_host_key_policy(paramiko.AutoRejectPolicy()) # adding host key policy, AutoReject=Secure
+        ssh_client.set_missing_host_key_policy(paramiko.RejectPolicy()) # adding host key policy, AutoReject=Secure
         ssh_client.load_system_host_keys() # checking known host list
 
         # connecting to the server via ssh
