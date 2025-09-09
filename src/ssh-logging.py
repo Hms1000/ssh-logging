@@ -50,6 +50,24 @@ def linux_server_secure_logging(hostname, username, command, key):
     finally:
        ssh_client.close()
 
+def get_secrets():
+    try:
+        db_user = Path('/run/secrets/postgres_user').read_text().strip()
+        db_password = Path('/run/secrets/postgres_password').read_text().strip()
+        db_name = Path('/run/secrets/postgres_name').read_text().strip()
+
+        return {
+                "db_user": db_user,
+                "db_password": db_passwdord,
+                "db_name": db_name
+                }
+    except FileNotFoundError as e:
+        print(f'Missing secrets file: {e}')
+        logging.error('Missing secrets file: {e}')
+    except Exception as e:
+        print(f'Error reading secrets: {e}')
+        logging.error(f'Error reading secrets: {e}')
+
 def main():
     parser = argparse.ArgumentParser(description='logging securely into a server using ssh')
     parser.add_argument('--hostname', type=str, required=True, help='target server ip address')
@@ -59,6 +77,7 @@ def main():
     args = parser.parse_args()
 
     linux_server_secure_logging(args.hostname, args.username, args.command, args.key)
+    get_secrets()
 
 if __name__ == '__main__':
     main()
