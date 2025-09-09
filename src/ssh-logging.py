@@ -59,10 +59,10 @@ def get_secrets():
 
         return {
                 "db_user": db_user,
-                "db_password": db_passwdord,
+                "db_password": db_password,
                 "db_name": db_name
                 }
-    except FileNotFoundError as e:
+    except FileNotFoundError as e:  
         print(f'Missing secrets file: {e}')
         logging.error('Missing secrets file: {e}')
     except Exception as e:
